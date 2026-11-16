@@ -1,12 +1,13 @@
 """Simple lexical retrieval: bounded overlapping passages with original page numbers."""
 import re
+from backend.questions import normalize_question
 
-STOP = set('what is are the a an my me of for in on does do how much about this document plan insurance please tell and to it says say benefits benefit cost costs'.split())
+STOP = set('what is are the a an my me of for in on does do how much about this document plan insurance please tell and to it says say benefits benefit cost costs can could would you your show explain information find know want need'.split())
 ALIASES = {'co': 'copay', 'copayment': 'copay', 'copayments': 'copay', 'deductibles': 'deductible', 'medicines': 'prescription', 'drugs': 'prescription', 'drug': 'prescription', 'prescriptions': 'prescription'}
 
 
 def tokens(text):
-    return {ALIASES.get(t, t) for t in re.findall(r'[a-z0-9]+', text.lower()) if t not in STOP and len(t) > 1}
+    return {ALIASES.get(t, t) for t in re.findall(r'[a-z0-9]+', normalize_question(text)) if t not in STOP and len(t) > 1}
 
 
 def retrieve(question, document):

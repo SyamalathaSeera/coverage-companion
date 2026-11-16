@@ -12,6 +12,10 @@ def sample_members():
         ('medical', 'Outpatient consultation', 'inactive', 'error', True, '2200', '0', '65', '25'),
         ('dental', 'Preventive dental visit', 'active', 'approved', False, '280', '100', '40', '15'),
         ('pharmacy', 'Generic prescriptions', 'active', 'approved', False, '80', '15', '8', '5'),
+        ('medical', 'Urgent care visit', 'active', 'approved', False, '1200', '450', '60', '20'),
+        ('medical', 'Outpatient imaging', 'active', 'approved', True, '2000', '800', '90', '25'),
+        ('medical', 'Physical therapy', 'pending', 'pending', True, '1500', '300', '45', '15'),
+        ('medical', 'Laboratory testing', 'active', 'approved', False, '1000', '1000', '0', '10'),
     ]
     rows = []
     for index, (kind, service, status, response, auth, total, met, copay, coinsurance) in enumerate(scenarios, 1):
@@ -24,6 +28,10 @@ def sample_members():
             transaction_datetime='2025-01-15T12:00:00', benefit_limit_type='not specified',
             benefit_limit_value='0', service_type_code='sample',
             response_message='Project-generated fictional scenario for software testing.'))
+    for row in rows[8:]:
+        row['provider_id'] = 'SAMPLE-PROVIDER-' + row['transaction_id'][-3:]
+        row['payer_id'] = 'SAMPLE-PAYER-MEDICAL'
+    rows[10].update(benefit_limit_type='visits', benefit_limit_value='12')
     imported = as_members(rows)
     return {key.replace('GM-', 'SYN-', 1): {**member, 'source': 'Coverage Companion fictional service records',
             'source_url': ''} for key, member in imported.items()}

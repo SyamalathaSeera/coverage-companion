@@ -4,6 +4,7 @@ let busy = false;
 let documentInfo = null;
 let memberRecords = new Map();
 let worklist = [];
+let previousQuestion = '';
 
 function renderWorklist() {
   const filter = $('#review-filter').value;
@@ -90,6 +91,7 @@ async function loadMembers() {
   try {
     const result = await api('/members');
     const selected = $('#member-select').value;
+    const firstLoad = memberRecords.size === 0;
     memberRecords = new Map(result.members.map((member) => [member.member_id, member]));
     const options = result.members.map((member) => {
       const option = document.createElement('option');
@@ -99,7 +101,8 @@ async function loadMembers() {
       return option;
     });
     $('#member-select').replaceChildren(...options);
-    if (memberRecords.has(selected)) $('#member-select').value = selected;
+    if (firstLoad && memberRecords.has('SYN-SAMPLE009')) $('#member-select').value = 'SYN-SAMPLE009';
+    else if (memberRecords.has(selected)) $('#member-select').value = selected;
     const imported = result.members.filter((member) => member.plan.eligibility_record);
     const patients = new Set(imported.map((member) => member.plan.eligibility_record.patient_id)).size;
     $('#member-count').textContent = `${result.members.length - imported.length} demo members + ${imported.length} service transactions for ${patients} synthetic patients.`;
@@ -110,12 +113,24 @@ async function loadMembers() {
   }
 }
 
-function message(role, text, sources = []) {
+function message(role, text, sources = [], context = '') {
   const box = document.createElement('div');
   box.className = `message ${role}`;
   const body = document.createElement('p');
   body.textContent = `${role === 'user' ? 'You' : 'Assistant'}: ${text}`;
   box.append(body);
+  if (context) {
+    const note = document.createElement('p');
+    note.className = 'answer-note';
+    note.textContent = 'Synthetic historical data. Recorded amounts apply to this service only; current eligibility and payment are not established.';
+    const details = document.createElement('details');
+    const summary = document.createElement('summary');
+    summary.textContent = 'Record context and limitations';
+    const content = document.createElement('p');
+    content.textContent = context;
+    details.append(summary, content);
+    box.append(note, details);
+  }
   sources.forEach((source) => {
     const details = document.createElement('details');
     const summary = document.createElement('summary');
@@ -160,6 +175,7 @@ function updateDocument(info) {
 }
 
 function resetChat() {
+  previousQuestion = '';
   showSelectedRecord();
   messages.replaceChildren();
   $('#question-input').value = '';
@@ -167,11 +183,15 @@ function resetChat() {
   $('#member-panel').hidden = isDocument;
   $('#document-panel').hidden = !isDocument;
   const questions = isDocument ? [
-    ['Deductible', 'What is the deductible?'], ['Primary care', 'What is the primary care copay?'], ['Prescriptions', 'What are the prescription benefits?']
+    ['Deductible', 'What is the deductible?'], ['Primary care', 'What is the primary care copay?'], ['Prescriptions', 'What are the prescription benefits?'],
+    ['Coinsurance', 'What is the coinsurance?'], ['Authorization', 'What does the document say about prior authorization?']
   ] : memberRecords.get($('#member-select').value)?.plan.eligibility_record ? [
-    ['Recorded status', 'What is the recorded coverage status?'], ['Deductible', 'What is the deductible?'],
-    ['Service copay', 'What is the copay?'], ['Authorization', 'Is prior authorization required?']
-  ] : [['My plan', 'What is my insurance plan?'], ['Deductible', 'What is my deductible?'], ['Copay', 'What is my copay?'], ['Mock status', 'Is my insurance active?']];
+    ['Summary', 'Summarize this record'], ['Deductible', 'What is the deductible?'],
+    ['Remaining deductible', 'How much of the deductible is left?'], ['Service copay', 'What is the copay?'],
+    ['Cost breakdown', 'Show the recorded cost breakdown'], ['Provider / payer', 'Who are my provider and payer?'],
+    ['Coverage dates', 'What are the recorded coverage dates?'], ['Authorization', 'Is prior authorization required?'],
+    ['Next steps', 'What should I check next?'], ['Explain terms', 'Explain the difference between copay and coinsurance']
+  ] : [['Summary', 'Summarize my plan'], ['My plan', 'What is my insurance plan?'], ['Deductible', 'What is my deductible?'], ['Copay', 'What is my copay?'], ['Mock status', 'Is my insurance active?'], ['Explain deductible', 'What is a deductible?']];
   $('#suggestions').replaceChildren();
   questions.forEach(([label, question]) => {
     const button = document.createElement('button');
@@ -190,9 +210,10 @@ async function ask(question) {
   $('#question-input').value = '';
   setBusy(true, 'Finding an answer…');
   try {
-    const result = await api('/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode, member_id: $('#member-select').value, question: question.trim() }) });
+    const result = await api('/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode, member_id: $('#member-select').value, question: question.trim(), previous_question: previousQuestion }) });
     const label = mode === 'member' ? `${result.member_name} · deterministic fictional record` : result.notice;
-    message('assistant', `${label}\n\n${result.answer}\n\nSource: ${result.source}`, result.sources);
+    message('assistant', `${result.display_answer || result.answer}\n\n${label}\nSource: ${result.source}`, result.sources, result.record_context || '');
+    previousQuestion = result.resolved_question || question.trim();
   } catch (error) { message('assistant', error.message); }
   finally { setBusy(false); $('#question-input').focus(); }
 }

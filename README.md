@@ -22,7 +22,8 @@ Open http://127.0.0.1:8000/ (application), http://127.0.0.1:8000/docs (API), or 
 
 ## Implemented and mocked
 
-- Deterministic member answers use three fictional plan records plus eight bundled synthetic service records. A local GoMask import can replace the service examples. Plan values and recorded status never use an LLM.
+- Deterministic member answers use three fictional plan records plus twelve bundled synthetic service records. Examples include dental, prescriptions, vision, specialist consultations, urgent care, imaging, physical therapy, and laboratory testing. A local GoMask import adds records alongside the bundled service examples. Plan values and recorded status never use an LLM.
+- Chat supports record summaries, cost breakdowns, provider/payer IDs, recorded dates, authorization requirements, term explanations, and grounded follow-up steps. Common variants such as "co-payment", "pre-approval", and "deductable" are recognized. After asking about a deductible, try "How much is left?" The browser sends only the preceding question as context, clears it on record/mode changes, and retains no server-side conversation. Answers show the specific response first, with expandable historical context. General definitions are labeled separately from record facts.
 - PDF uploads accept text PDFs up to 5 MB and 20 pages, with errors for invalid, encrypted, empty, scanned, oversized, or excessive extracted text documents.
 - Document mode retrieves page-preserving passages, quotes evidence, and abstains when there is no match. Lexical retrieval is intentionally conservative; it can miss paraphrases and split-page answers.
 - A real compiled LangGraph routes member lookup versus document retrieval and answer generation.

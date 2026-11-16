@@ -9,6 +9,7 @@ from backend.retrieval import retrieve
 from backend.llm import select_evidence
 from backend.observability import observe
 from backend.limits import ProviderAllowanceExceeded
+from backend.questions import resolve_followup
 
 NOT_FOUND = 'The document does not contain a supported answer to this question. Try a specific benefit term. Policy text cannot establish current eligibility or guarantee payment.'
 
@@ -17,6 +18,7 @@ class State(TypedDict, total=False):
     mode: str
     member_id: str
     question: str
+    previous_question: str
     document: dict
     passages: list
     result: dict
@@ -24,8 +26,11 @@ class State(TypedDict, total=False):
 
 def member_lookup(state):
     member_id, member = find_member(state['member_id'])
+    question = resolve_followup(state['question'], state.get('previous_question', ''))
+    answer = create_answer(question, member['plan'])
+    display_answer, _, record_context = answer.rpartition('\n\n') if 'eligibility_record' in member['plan'] else (answer, '', '')
     return {'result': dict(mode='member', member_id=member_id, member_name=member['member_name'],
-        answer=create_answer(state['question'], member['plan']), sources=[],
+        answer=answer, display_answer=display_answer, record_context=record_context, resolved_question=question, sources=[],
         source=member.get('source', 'Fictional member records in members.json'), is_demo=True,
         answer_mode='deterministic', found=True, route=['member_lookup'])}
 

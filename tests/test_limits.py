@@ -51,7 +51,7 @@ def test_provider_cap_returns_document_evidence_without_paid_call(monkeypatch):
 
 def test_fresh_installation_has_project_owned_service_examples():
     members = sample_members()
-    assert len(members) == 8
+    assert len(members) == 12
     assert all(key.startswith('SYN-') and 'GoMask' not in member['source'] for key, member in members.items())
     summary = build_worklist(members)['summary']
-    assert summary == dict(transactions=8, patients=8, recorded_exceptions=3, authorization_flags=2, needs_review=3)
+    assert summary == dict(transactions=12, patients=12, recorded_exceptions=4, authorization_flags=4, needs_review=5)

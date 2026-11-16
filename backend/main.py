@@ -104,6 +104,7 @@ class ChatRequest(BaseModel):
     mode: Literal['member', 'document'] = 'member'
     member_id: str = Field(default='DEMO001', min_length=1, max_length=30)
     question: str = Field(min_length=1, max_length=500)
+    previous_question: str = Field(default='', max_length=500)
 
     @field_validator('question', 'member_id')
     @classmethod
@@ -143,7 +144,8 @@ def operations():
 @app.post('/chat')
 def chat(body: ChatRequest, request: Request):
     document = app.state.documents.get(request.cookies.get(COOKIE)) if body.mode == 'document' else None
-    return run_workflow(dict(mode=body.mode, member_id=body.member_id, question=body.question, document=document))
+    return run_workflow(dict(mode=body.mode, member_id=body.member_id, question=body.question,
+                             previous_question=body.previous_question, document=document))
 
 
 def metadata(document):

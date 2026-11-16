@@ -60,6 +60,16 @@ def test_deductible_does_not_assume_annual(record):
     assert 'annual' not in answer
 
 
+@pytest.mark.parametrize('provider_id', ['PROVIDER', ''])
+def test_provider_question_reports_only_available_identity(record, provider_id):
+    record['provider_id'] = provider_id
+    answer = create_record_answer('Who is my provider?', record)
+    assert f"Recorded provider ID: {provider_id or 'not supplied'}." in answer
+    assert 'Provider name is not supplied.' in answer
+    assert 'does not establish the requested benefit' not in answer
+    assert 'not current eligibility' in answer
+
+
 def test_api_lists_and_answers_imported_records(record, monkeypatch):
     monkeypatch.setitem(MEMBERS, 'GM-TEST001', as_members([record])['GM-TEST001'])
     with TestClient(app) as client:
@@ -71,3 +81,16 @@ def test_api_lists_and_answers_imported_records(record, monkeypatch):
         assert answer['source'].startswith('GoMask')
         assert '$45.00' in answer['answer']
         assert answer['answer_mode'] == 'deterministic'
+
+
+def test_sequential_questions_return_distinct_answers(record, monkeypatch):
+    monkeypatch.setitem(MEMBERS, 'GM-TEST001', as_members([record])['GM-TEST001'])
+    with TestClient(app) as client:
+        answers = [client.post('/chat', json={'member_id': 'GM-TEST001', 'question': question}).json()['answer']
+                   for question in ('Who is my provider?', 'What is the deductible?', 'What is the copay?')]
+    assert answers[0].startswith('Recorded provider ID: PROVIDER.')
+    assert answers[1].startswith('Recorded deductible total: $200.00; met: $60.50.')
+    assert answers[2].startswith('Recorded service copay: $45.00.')
+    assert len(set(answers)) == 3
+    assert '$45.00' not in answers[1]
+    assert '$200.00' not in answers[2]
