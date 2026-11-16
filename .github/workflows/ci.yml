@@ -41,9 +41,13 @@ jobs:
                       raise
                   time.sleep(1)
           with urllib.request.urlopen(base + '/members') as response:
-              assert len(json.load(response)['members']) == 11
+              members = json.load(response)['members']
+              assert len(members) == 15, f"Expected 15 bundled members, got {len(members)}"
+              member_ids = {member['member_id'] for member in members}
+              assert {'SYN-SAMPLE009', 'SYN-SAMPLE010', 'SYN-SAMPLE011', 'SYN-SAMPLE012'} <= member_ids, 'New service examples are missing'
           with urllib.request.urlopen(base + '/operations') as response:
-              assert json.load(response)['summary']['transactions'] == 8
+              transactions = json.load(response)['summary']['transactions']
+              assert transactions == 12, f"Expected 12 bundled transactions, got {transactions}"
           PY
       - name: Stop smoke container
         if: always()
