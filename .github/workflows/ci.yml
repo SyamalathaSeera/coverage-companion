@@ -1,0 +1,50 @@
+name: Verify application
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      LANGSMITH_TRACING: "false"
+      OPENAI_API_KEY: ""
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          package-manager-cache: false
+      - run: python -m pip install -r requirements-dev.txt
+      - run: python -m pytest -q -p no:cacheprovider
+      - run: python -m evals.run
+      - run: python -m pip check
+      - run: node --check frontend/app.js
+      - run: docker build -t coverage-companion .
+      - run: docker run --detach --name coverage-smoke -p 8000:8000 coverage-companion
+      - name: Check container startup and bundled records
+        run: |
+          python - <<'PY'
+          import json, time, urllib.request
+          base = 'http://127.0.0.1:8000'
+          for attempt in range(15):
+              try:
+                  with urllib.request.urlopen(base + '/health', timeout=2) as response:
+                      assert json.load(response)['status'] == 'ok'
+                  break
+              except OSError:
+                  if attempt == 14:
+                      raise
+                  time.sleep(1)
+          with urllib.request.urlopen(base + '/members') as response:
+              assert len(json.load(response)['members']) == 11
+          with urllib.request.urlopen(base + '/operations') as response:
+              assert json.load(response)['summary']['transactions'] == 8
+          PY
+      - name: Stop smoke container
+        if: always()
+        run: docker rm -f coverage-smoke

@@ -1,0 +1,10 @@
+[
+  {"inputs":{"mode":"member","member_id":"DEMO001","question":"What is my deductible?"},"outputs":{"contains":"1,500","pages":[],"found":true}},
+  {"inputs":{"mode":"member","member_id":"DEMO002","question":"What is my copay?"},"outputs":{"contains":"$20","pages":[],"found":true}},
+  {"inputs":{"mode":"member","member_id":"DEMO003","question":"What is my coverage status?"},"outputs":{"contains":"Inactive","pages":[],"found":true}},
+  {"inputs":{"mode":"document","question":"What is the deductible?"},"outputs":{"contains":"$1,500","pages":[1],"found":true}},
+  {"inputs":{"mode":"document","question":"What is the prescription copay?"},"outputs":{"contains":"$10","pages":[2],"found":true}},
+  {"inputs":{"mode":"document","question":"What is the dental implant allowance?"},"outputs":{"contains":"does not contain","pages":[],"found":false}},
+  {"inputs":{"mode":"document","question":"What is my claim status?"},"outputs":{"contains":"does not contain","pages":[],"found":false}},
+  {"inputs":{"mode":"document","question":"What is the deductible for dental implants?"},"outputs":{"contains":"does not contain","pages":[],"found":false}}
+]

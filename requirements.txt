@@ -1,0 +1,9 @@
+fastapi==0.162.6
+uvicorn==0.54.0
+pydantic==2.14.3
+pypdf==7.1.0
+python-multipart==0.0.33
+python-dotenv==1.2.4
+langgraph==1.2.21
+langchain-openai==1.8.0
+langsmith==0.14.17

@@ -1,0 +1,30 @@
+# Render Blueprint: one service for both FastAPI and the frontend.
+# Keep one instance: uploaded documents are stored in process memory.
+services:
+  - type: web
+    name: coverage-companion
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeployTrigger: off
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4.1-mini
+      - key: COOKIE_SECURE
+        value: "true"
+      # Enter the actual HTTPS service URL, without a trailing slash.
+      - key: APP_ORIGIN
+        sync: false
+      - key: LANGSMITH_TRACING
+        value: "false"
+      - key: LANGSMITH_PROJECT
+        value: coverage-companion
+      - key: OPENAI_DAILY_CALL_LIMIT
+        value: "100"
+      - key: CHAT_REQUESTS_PER_MINUTE
+        value: "60"
+      - key: UPLOADS_PER_MINUTE
+        value: "10"

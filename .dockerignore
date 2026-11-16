@@ -1,0 +1,20 @@
+.venv
+.git
+.github
+.env
+.env.*
+!.env.example
+__pycache__
+*.pyc
+.pytest_cache
+uploads
+private-data
+.sf
+tests
+docs
+evals
+scripts
+*.log
+gomask-*.tmp.html
+# Local licensed imports are not included in the public demo image.
+backend/data/gomask.json

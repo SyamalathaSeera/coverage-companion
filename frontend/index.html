@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coverage Companion</title>
+  <link rel="stylesheet" href="styles.css?v=release-1">
+  <script src="app.js?v=release-1" defer></script>
+</head>
+<body>
+<main class="app">
+  <header>
+    <div class="brand-mark" aria-hidden="true">cc<span>+</span></div>
+    <div class="brand-copy"><span class="eyebrow">ELIGIBILITY & BENEFITS WORKSPACE</span><h1>Coverage Companion</h1><p>Review eligibility exceptions. Find the evidence. Explain the benefits.</p></div>
+    <span class="demo-badge">Sample workspace</span>
+  </header>
+  <p class="demo-notice">Fictional data and mock eligibility only. Policy documents do not establish current eligibility or guarantee payment. Use synthetic documents only.</p>
+  <section id="operations-panel" aria-labelledby="operations-heading">
+    <div class="section-heading"><div><span class="eyebrow">OPERATIONS OVERVIEW</span><h2 id="operations-heading">Eligibility review worklist</h2></div><span class="demo-badge">Historical sample</span></div>
+    <p class="hint">Review service records before explaining benefits. Flags show recorded issues for human follow-up; every real visit requires a fresh eligibility check.</p>
+    <div id="operations-metrics" class="metrics" aria-label="Sample dataset counts"></div>
+    <div class="worklist-toolbar"><label for="review-filter">Show records</label><select id="review-filter"><option value="all">All service records</option><option value="review">Flagged for review</option><option value="authorization">Authorization flagged</option></select></div>
+    <p id="operations-status" class="hint" role="status">Loading worklist…</p>
+    <div class="table-scroll"><table class="worklist"><caption class="sr-only">Synthetic eligibility service records and suggested follow-up</caption><thead><tr><th scope="col">Patient / service</th><th scope="col">Recorded result</th><th scope="col">Follow-up</th><th scope="col">Open</th></tr></thead><tbody id="worklist-rows"></tbody></table></div>
+    <details class="demo-tour"><summary>Try a three-minute walkthrough</summary><ol><li>Open a terminated pharmacy record: inspect its terminated pharmacy coverage and denied response.</li><li>Open a pending specialist record: inspect the pending specialist record and authorization flag.</li><li>Open an active dental record: ask about the recorded dental copay and deductible.</li><li>Switch to Uploaded benefits PDF, upload the <a href="synthetic-benefits.pdf" download>synthetic sample PDF</a>, and ask about prescription benefits. Expand a citation, then ask about dental implants to test abstention.</li></ol></details>
+  </section>
+  <div class="mode-picker"><label for="mode-select">Ask about</label><select id="mode-select"><option value="member">Fictional member records</option><option value="document">Uploaded benefits PDF</option></select></div>
+  <section id="member-panel" class="member-picker"><label for="member-select">Selected synthetic record</label><select id="member-select"><option value="DEMO001">Alex Demo — DEMO001</option><option value="DEMO002">Jordan Demo — DEMO002</option><option value="DEMO003">Taylor Demo — DEMO003</option></select><p id="member-count" class="hint">Loading records…</p><p class="hint">Service entries are historical synthetic transactions. Each copay applies only to its recorded service.</p><details id="record-details"><summary>View selected record</summary><p id="record-source" class="hint"></p><dl id="record-fields"></dl></details></section>
+  <section id="document-panel" hidden aria-labelledby="document-heading">
+    <h2 id="document-heading">Your temporary document</h2>
+    <p class="hint">Text-based PDF · up to 5 MB · 20 pages. Scanned images are unsupported. One document per browser, deleted after 30 minutes or a server restart. Tabs in this browser share it.</p>
+    <form id="upload-form"><label for="pdf-file">Choose a synthetic benefits PDF</label><input id="pdf-file" type="file" accept=".pdf,application/pdf" required><div class="actions"><button type="submit">Upload PDF</button><button id="remove-document" type="button" disabled>Remove document</button></div></form>
+    <p id="document-status" role="status">No document uploaded.</p>
+    <p id="provider-status" class="hint">Checking answer mode…</p>
+    <p class="hint">When OpenAI is configured, your question and retrieved excerpts are sent to OpenAI. Without credentials, extraction and matching stay on this server.</p>
+  </section>
+  <section aria-labelledby="suggestions-heading"><h2 id="suggestions-heading">Try a question</h2><div id="suggestions" class="suggestions"></div></section>
+  <div class="conversation-heading"><h2>Your conversation</h2><span>Answers with sources</span></div>
+  <section id="chat-messages" class="chat-messages" role="log" aria-label="Chat messages" aria-live="polite"></section>
+  <form id="chat-form"><label for="question-input">Your question</label><div class="input-row"><input id="question-input" name="question" placeholder="What would you like to understand?" maxlength="500" autocomplete="off" required><button type="submit">Send <span aria-hidden="true">↗</span></button></div></form>
+  <p id="request-status" role="status" class="hint"></p>
+  <footer>Coverage Companion ? Eligibility records and benefits evidence in one workspace.</footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,29 @@
+{
+  "DEMO001": {
+    "member_name": "Alex Demo",
+    "plan": {
+      "name": "Sample Care PPO",
+      "annual_deductible": 1500,
+      "primary_care_copay": 25,
+      "status": "Active in the fictional demo record"
+    }
+  },
+  "DEMO002": {
+    "member_name": "Jordan Demo",
+    "plan": {
+      "name": "Sample Choice HMO",
+      "annual_deductible": 1000,
+      "primary_care_copay": 20,
+      "status": "Active in the fictional demo record"
+    }
+  },
+  "DEMO003": {
+    "member_name": "Taylor Demo",
+    "plan": {
+      "name": "Sample Basic Plan",
+      "annual_deductible": 3000,
+      "primary_care_copay": 40,
+      "status": "Inactive in the fictional demo record"
+    }
+  }
+}
